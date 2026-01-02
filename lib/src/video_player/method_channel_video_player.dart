@@ -17,23 +17,28 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
   Future<void> init() => _channel.invokeMethod<void>('init');
 
   @override
-  Future<void> dispose(int? textureId) =>
-      _channel.invokeMethod<void>('dispose', <String, dynamic>{'textureId': textureId});
+  Future<void> dispose(int? textureId) => _channel
+      .invokeMethod<void>('dispose', <String, dynamic>{'textureId': textureId});
 
   @override
-  Future<int?> create({BetterPlayerBufferingConfiguration? bufferingConfiguration}) async {
+  Future<int?> create(
+      {BetterPlayerBufferingConfiguration? bufferingConfiguration}) async {
     late final Map<String, dynamic>? response;
     if (bufferingConfiguration == null) {
       response = await _channel.invokeMapMethod<String, dynamic>('create');
     } else {
-      final responseLinkedHashMap = await _channel.invokeMethod<Map<Object?, dynamic>?>('create', <String, dynamic>{
+      final responseLinkedHashMap = await _channel
+          .invokeMethod<Map<Object?, dynamic>?>('create', <String, dynamic>{
         'minBufferMs': bufferingConfiguration.minBufferMs,
         'maxBufferMs': bufferingConfiguration.maxBufferMs,
         'bufferForPlaybackMs': bufferingConfiguration.bufferForPlaybackMs,
-        'bufferForPlaybackAfterRebufferMs': bufferingConfiguration.bufferForPlaybackAfterRebufferMs,
+        'bufferForPlaybackAfterRebufferMs':
+            bufferingConfiguration.bufferForPlaybackAfterRebufferMs,
       });
 
-      response = responseLinkedHashMap != null ? Map<String, dynamic>.from(responseLinkedHashMap) : null;
+      response = responseLinkedHashMap != null
+          ? Map<String, dynamic>.from(responseLinkedHashMap)
+          : null;
     }
     return response?['textureId'] as int?;
   }
@@ -107,53 +112,75 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
 
   @override
   Future<void> setLooping(int? textureId, bool looping) =>
-      _channel.invokeMethod<void>('setLooping', <String, dynamic>{'textureId': textureId, 'looping': looping});
+      _channel.invokeMethod<void>('setLooping',
+          <String, dynamic>{'textureId': textureId, 'looping': looping});
 
   @override
-  Future<void> play(int? textureId) => _channel.invokeMethod<void>('play', <String, dynamic>{'textureId': textureId});
+  Future<void> play(int? textureId) => _channel
+      .invokeMethod<void>('play', <String, dynamic>{'textureId': textureId});
 
   @override
-  Future<void> pause(int? textureId) => _channel.invokeMethod<void>('pause', <String, dynamic>{'textureId': textureId});
+  Future<void> pause(int? textureId) => _channel
+      .invokeMethod<void>('pause', <String, dynamic>{'textureId': textureId});
 
   @override
   Future<void> setVolume(int? textureId, double volume) =>
-      _channel.invokeMethod<void>('setVolume', <String, dynamic>{'textureId': textureId, 'volume': volume});
+      _channel.invokeMethod<void>('setVolume',
+          <String, dynamic>{'textureId': textureId, 'volume': volume});
 
   @override
   Future<void> setSpeed(int? textureId, double speed) =>
-      _channel.invokeMethod<void>('setSpeed', <String, dynamic>{'textureId': textureId, 'speed': speed});
+      _channel.invokeMethod<void>('setSpeed',
+          <String, dynamic>{'textureId': textureId, 'speed': speed});
 
   @override
-  Future<void> setTrackParameters(int? textureId, int? width, int? height, int? bitrate) => _channel.invokeMethod<void>(
-    'setTrackParameters',
-    <String, dynamic>{'textureId': textureId, 'width': width, 'height': height, 'bitrate': bitrate},
-  );
+  Future<void> setTrackParameters(
+          int? textureId, int? width, int? height, int? bitrate) =>
+      _channel.invokeMethod<void>(
+        'setTrackParameters',
+        <String, dynamic>{
+          'textureId': textureId,
+          'width': width,
+          'height': height,
+          'bitrate': bitrate
+        },
+      );
 
   @override
-  Future<void> seekTo(int? textureId, Duration? position) => _channel.invokeMethod<void>('seekTo', <String, dynamic>{
-    'textureId': textureId,
-    'location': position!.inMilliseconds,
-  });
+  Future<void> seekTo(int? textureId, Duration? position) =>
+      _channel.invokeMethod<void>('seekTo', <String, dynamic>{
+        'textureId': textureId,
+        'location': position!.inMilliseconds,
+      });
 
   @override
   Future<Duration> getPosition(int? textureId) async => Duration(
-    milliseconds: await _channel.invokeMethod<int>('position', <String, dynamic>{'textureId': textureId}) ?? 0,
-  );
+        milliseconds: await _channel.invokeMethod<int>(
+                'position', <String, dynamic>{'textureId': textureId}) ??
+            0,
+      );
 
   @override
   Future<DateTime?> getAbsolutePosition(int? textureId) async {
-    final int milliseconds =
-        await _channel.invokeMethod<int>('absolutePosition', <String, dynamic>{'textureId': textureId}) ?? 0;
+    final int milliseconds = await _channel.invokeMethod<int>(
+            'absolutePosition', <String, dynamic>{'textureId': textureId}) ??
+        0;
 
     if (milliseconds <= 0) {
       return null;
     }
+    // Sometimes the media server returns a absolute position far greater than
+    // the datetime instance can handle. This caps the value to the maximum the datetime
+    // can use.
+    if (milliseconds > 8640000000000000 || milliseconds < -8640000000000000)
+      return null;
 
     return DateTime.fromMillisecondsSinceEpoch(milliseconds);
   }
 
   @override
-  Future<void> enablePictureInPicture(int? textureId, double? top, double? left, double? width, double? height) async =>
+  Future<void> enablePictureInPicture(int? textureId, double? top, double? left,
+          double? width, double? height) async =>
       _channel.invokeMethod<void>('enablePictureInPicture', <String, dynamic>{
         'textureId': textureId,
         'top': top,
@@ -164,26 +191,34 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
 
   @override
   Future<bool?> isPictureInPictureEnabled(int? textureId) =>
-      _channel.invokeMethod<bool>('isPictureInPictureSupported', <String, dynamic>{'textureId': textureId});
+      _channel.invokeMethod<bool>('isPictureInPictureSupported',
+          <String, dynamic>{'textureId': textureId});
 
   @override
   Future<void> disablePictureInPicture(int? textureId) =>
-      _channel.invokeMethod<bool>('disablePictureInPicture', <String, dynamic>{'textureId': textureId});
+      _channel.invokeMethod<bool>(
+          'disablePictureInPicture', <String, dynamic>{'textureId': textureId});
 
   @override
-  Future<void> setAudioTrack(int? textureId, String? name, int? index) => _channel.invokeMethod<void>(
-    'setAudioTrack',
-    <String, dynamic>{'textureId': textureId, 'name': name, 'index': index},
-  );
+  Future<void> setAudioTrack(int? textureId, String? name, int? index) =>
+      _channel.invokeMethod<void>(
+        'setAudioTrack',
+        <String, dynamic>{'textureId': textureId, 'name': name, 'index': index},
+      );
 
   @override
-  Future<void> setMixWithOthers(int? textureId, bool mixWithOthers) => _channel.invokeMethod<void>(
-    'setMixWithOthers',
-    <String, dynamic>{'textureId': textureId, 'mixWithOthers': mixWithOthers},
-  );
+  Future<void> setMixWithOthers(int? textureId, bool mixWithOthers) =>
+      _channel.invokeMethod<void>(
+        'setMixWithOthers',
+        <String, dynamic>{
+          'textureId': textureId,
+          'mixWithOthers': mixWithOthers
+        },
+      );
 
   @override
-  Future<void> clearCache() => _channel.invokeMethod<void>('clearCache', <String, dynamic>{});
+  Future<void> clearCache() =>
+      _channel.invokeMethod<void>('clearCache', <String, dynamic>{});
 
   @override
   Future<void> preCache(DataSource dataSource, int preCacheSize) {
@@ -198,12 +233,14 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
       'cacheKey': dataSource.cacheKey,
       'videoExtension': dataSource.videoExtension,
     };
-    return _channel.invokeMethod<void>('preCache', <String, dynamic>{'dataSource': dataSourceDescription});
+    return _channel.invokeMethod<void>(
+        'preCache', <String, dynamic>{'dataSource': dataSourceDescription});
   }
 
   @override
   Future<void> stopPreCache(String url, String? cacheKey) =>
-      _channel.invokeMethod<void>('stopPreCache', <String, dynamic>{'url': url, 'cacheKey': cacheKey});
+      _channel.invokeMethod<void>(
+          'stopPreCache', <String, dynamic>{'url': url, 'cacheKey': cacheKey});
 
   @override
   Stream<VideoEvent> videoEventsFor(int? textureId) =>
@@ -251,7 +288,8 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
               buffered: values.map<DurationRange>(_toDurationRange).toList(),
             );
           case 'bufferingStart':
-            return VideoEvent(eventType: VideoEventType.bufferingStart, key: key);
+            return VideoEvent(
+                eventType: VideoEventType.bufferingStart, key: key);
           case 'bufferingEnd':
             return VideoEvent(eventType: VideoEventType.bufferingEnd, key: key);
 
@@ -292,10 +330,12 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
     }
   }
 
-  EventChannel _eventChannelFor(int? textureId) => EventChannel('better_player_channel/videoEvents$textureId');
+  EventChannel _eventChannelFor(int? textureId) =>
+      EventChannel('better_player_channel/videoEvents$textureId');
 
   DurationRange _toDurationRange(dynamic value) {
     final List<dynamic> pair = value as List;
-    return DurationRange(Duration(milliseconds: pair[0] as int), Duration(milliseconds: pair[1] as int));
+    return DurationRange(Duration(milliseconds: pair[0] as int),
+        Duration(milliseconds: pair[1] as int));
   }
 }
